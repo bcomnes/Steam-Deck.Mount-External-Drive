@@ -1,60 +1,112 @@
-# Steam-Deck.Mount-External-Drive 3.5
-Script to Auto-Mount NTFS, BTRFS & exFat SDCards, External USB Drives (or SSD Docks) & Internal Partitions (If you Dual-Boot) on the Steam Deck
+# Steam Deck Additional NVME Mount - Minimal Version
 
-NTFS & BTRFS Partitions containing a SteamLibrary at root level or in a folder named `SteamLibrary` will automatically be added to Steam, exFAT isn't supported as a SteamLibrary but will be Mounted for use with other Launchers or for Media/ROMs etc.
+A minimal extension to add support for additional NVME drives (nvme1n1, nvme2n1, etc.) on Steam Deck and SteamOS.
 
-# "This is cool! How can I thank you?"
-### Why not drop me a sub over on my youtube channel ;) [Chinballs Gaming](https://www.youtube.com/chinballsTV?sub_confirmation=1)
+**This works alongside Valve's existing automount system** - it doesn't replace or override anything, just adds support for additional NVME drives that Valve's system doesn't handle.
 
-### Also [Check out all these other things I'm making](https://github.com/scawp/Steam-Deck.Tools-List)
+## What This Does
 
+- Adds a single udev rule to detect additional NVME drives (nvme1n1, nvme2n1, etc.)
+- Uses Valve's existing `/usr/lib/hwsupport/block-device-event.sh` script
+- Supports ext4 filesystem (what Steam prefers for game libraries)
+- Installs as higher priority (100) so it runs after Valve's rules (99)
+- Does NOT interfere with Valve's handling of SD cards, USB drives, or nvme0n1
 
-# Steam OS 3.5 Now supports Ext4 external Drives out the box so see **Uninstall** if thats all you need!
+## Supported Devices
 
-# How does this work?
+- `nvme1n1`, `nvme2n1`, etc. (whole additional NVME devices)
+- `nvme1n1p1`, `nvme2n1p5`, etc. (any partitions on additional NVME drives)
 
-This script is basically a mirror of Valves own Auto-Mount script (which lives on SteamOS at `/usr/lib/hwsupport/steamos-automount.sh` ) adding in support for `ntfs`, `btrfs` & `exFAT` and adding rules for Internal Partitions.
+## Supported Filesystems
 
-Additional RegEx has been added to the rules to allow he mounting of "Full Disk" Formatted drives (eg ones that don't have a partitions table) so even drives that are eg `sda` or `mmcblk0` as well as `sda1` or `mmcblk0p1` can be mounted.
+- **ext4** - Full support with automatic Steam library integration
+- **Other filesystems** - Will be rejected by Valve's script (use the full-featured version if needed)
 
-SteamOS's rule for this lives at `/usr/lib/udev/rules.d/99-steamos-automount.rules` and because SteamOS has a Read-Only File System, files in `/usr/` cannot be changed without removing the Read-Onlyness, however systemd rules can be overwritten due to how systemd prioritieses directories, so by adding a rule with the same name in `/etc/udev/rules.d/` we can override the rule without making changes to SteamOS.
+## Installation
 
-Looking for the old code? see https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/tree/pre-3.5
+### Via Curl (One Line Install)
 
-a `udev` rule is added to `/etc/udev/rules.d/99-steamos-automount.rules` which takes priority over `/usr/lib/udev/rules.d/99-steamos-automount.rules`
-this then calls systemd `/etc/systemd/system/external-drive-mount@[sda|sda1|sda2|sdd1|etc].service`
-that then runs `/home/deck/.local/share/scawp/SDMED/automount.sh` to Auto Mount any supported SD/External USB/Internal Partitions.
+In Konsole type:
+```bash
+curl -sSL https://raw.githubusercontent.com/bcomnes/Steam-Deck.Mount-External-Drive/minimal/curl_install.sh | bash
+```
 
-`/etc/fstab` is not required for mounting in this way, (however if a Device has an `fstab` entry these scripts will still work)
+A `sudo` password is required (run `passwd` if required first).
 
-# Video Guide
+## How It Works
 
-https://www.youtube.com/watch?v=Yglf1EKBv2A
+1. Adds a single udev rule file: `/etc/udev/rules.d/100-additional-nvme-automount.rules`
+2. When you plug in an additional NVME drive with ext4, it triggers Valve's existing automount system
+3. The drive gets mounted to `/run/media/deck/[LABEL]` just like any other external drive
+4. Steam automatically detects and adds it as a game library location
+5. No custom scripts, no systemd services - just extends what's already there
 
-# Operation
+## Operation
 
-The Drive(s) will be Auto-Mounted to `/run/media/deck/[LABEL]` eg `/run/media/deck/External-ssd/` if the Device has no `label` then the Devices `UUID` will be used eg `/run/media/deck/a12332-12bf-a33ab-eef/`
+Additional NVME drives will be auto-mounted to `/run/media/deck/[LABEL]` (e.g., `/run/media/deck/GameDrive/`). If the device has no label, the device's UUID will be used (e.g., `/run/media/deck/a12332-12bf-a33ab-eef/`).
 
-# Installation
+## Uninstall
 
-## Via Curl (One Line Install)
+```bash
+sudo rm /etc/udev/rules.d/100-additional-nvme-automount.rules
+sudo udevadm control --reload
+```
 
-In Konsole type `curl -sSL https://raw.githubusercontent.com/bcomnes/Steam-Deck.Mount-External-Drive/brets-fork/curl_install.sh | bash`
+## Why Minimal?
 
-a `sudo` password is required (run `passwd` if required first)
+- **Safety**: Doesn't replace or modify Valve's existing system
+- **Compatibility**: Works with future SteamOS updates
+- **Simplicity**: Just one small rule file
+- **Focused**: Only adds what's needed for additional NVME drives
+- **Reliable**: Uses Valve's own mounting logic
 
-# Uninstall
+## Differences from Full-Featured Versions
 
-`sudo rm /etc/udev/rules.d/99-steamos-automount.rules`
+This minimal version:
+- ✅ Supports additional NVME drives (nvme1n1+) with ext4
+- ✅ Works alongside Valve's system without conflicts
+- ✅ No custom scripts or services to maintain
+- ✅ Uses Valve's Steam library integration
+- ❌ Doesn't support NTFS/BTRFS/exFAT (use ext4 instead)
+- ❌ Doesn't override Valve's USB/SD handling
+- ❌ No custom mounting logic
 
-`sudo rm /etc/systemd/system/external-drive-mount@.service`
+## Troubleshooting
 
-`sudo rm -r /home/deck/.local/share/scawp/SDMED`
+1. **Check if rule is installed:**
+   ```bash
+   ls -la /etc/udev/rules.d/100-additional-nvme-automount.rules
+   ```
 
-`sudo udevadm control --reload`
+2. **Test udev detection:**
+   ```bash
+   sudo udevadm monitor --property
+   # Then plug in your drive
+   ```
 
-`sudo systemctl daemon-reload`
+3. **Manual trigger:**
+   ```bash
+   sudo udevadm trigger --action=add --name-match=nvme1n1p1
+   ```
 
-# WORK IN PROGRESS!
+4. **Check if drive is detected:**
+   ```bash
+   lsblk
+   ```
 
-This will probably have bugs, so beware! log bugs under [issues](https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/issues)!
+## Format Recommendation
+
+For best compatibility with Steam, format your additional NVME drive as ext4:
+
+```bash
+# Example: Format nvme1n1 as ext4 with label "GameDrive"
+sudo mkfs.ext4 -L GameDrive /dev/nvme1n1
+```
+
+## License
+
+DBAD - https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/blob/main/LICENSE.md
+
+## Issues
+
+Report bugs at: https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/issues
