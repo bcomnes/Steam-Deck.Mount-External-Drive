@@ -1,15 +1,15 @@
 #!/bin/bash
 #Steam Deck Mount External Drive by scawp
-#License: DBAD: https://github.com/scawp/Steam-Deck.Mount-External-Drive/blob/main/LICENSE.md
-#Source: https://github.com/scawp/Steam-Deck.Mount-External-Drive
+#License: DBAD: https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/blob/main/LICENSE.md
+#Source: https://github.com/bcomnes/Steam-Deck.Mount-External-Drive
 # Use at own Risk!
 
-#curl -sSL https://raw.githubusercontent.com/scawp/Steam-Deck.Mount-External-Drive/main/curl_install.sh | bash
+#curl -sSL https://raw.githubusercontent.com/bcomnes/Steam-Deck.Mount-External-Drive/main/curl_install.sh | bash
 
 #stop running script if anything returns an error (non-zero exit )
 set -e
 
-repo_url="https://raw.githubusercontent.com/scawp/Steam-Deck.Mount-External-Drive/main"
+repo_url="https://raw.githubusercontent.com/bcomnes/Steam-Deck.Mount-External-Drive/main"
 repo_lib_dir="$repo_url/lib"
 
 tmp_dir="/tmp/scawp.SDMED.install"
@@ -62,12 +62,12 @@ function install_automount () {
 
   echo "Copying $tmp_dir/99-steamos-automount.rules to $rules_install_dir/99-steamos-automount.rules"
   sudo cp "$tmp_dir/99-steamos-automount.rules" "$rules_install_dir/99-steamos-automount.rules"
-  
+
   #remove old rules if installed
   if [ -f "$rules_install_dir/99-external-drive-mount.rules" ]; then
     sudo rm "$rules_install_dir/99-external-drive-mount.rules"
   fi
-  
+
   if [ -f "$rules_install_dir/98-external-drive-mount.rules" ]; then
     sudo rm "$rules_install_dir/98-external-drive-mount.rules"
   fi

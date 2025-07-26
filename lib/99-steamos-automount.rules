@@ -6,3 +6,5 @@ KERNEL=="mmcblk0|mmcblk0p[0-9]", ACTION=="add", RUN+="/bin/systemctl start --no-
 KERNEL=="mmcblk0|mmcblk0p[0-9]", ACTION=="remove", RUN+="/bin/systemctl stop --no-block external-drive-mount@%k.service"
 KERNEL=="nvme0n1p9|nvme0n1p1[0-9]", ACTION=="add", RUN+="/bin/systemctl start --no-block external-drive-mount@%k.service"
 KERNEL=="nvme0n1p9|nvme0n1p1[0-9]", ACTION=="remove", RUN+="/bin/systemctl stop --no-block external-drive-mount@%k.service"
+KERNEL=="nvme[1-9]n1p[1-9]|nvme[1-9]n1p[1-9][0-9]", ACTION=="add", RUN+="/bin/systemctl start --no-block external-drive-mount@%k.service"
+KERNEL=="nvme[1-9]n1p[1-9]|nvme[1-9]n1p[1-9][0-9]", ACTION=="remove", RUN+="/bin/systemctl stop --no-block external-drive-mount@%k.service"

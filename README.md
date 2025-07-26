@@ -19,9 +19,9 @@ Additional RegEx has been added to the rules to allow he mounting of "Full Disk"
 
 SteamOS's rule for this lives at `/usr/lib/udev/rules.d/99-steamos-automount.rules` and because SteamOS has a Read-Only File System, files in `/usr/` cannot be changed without removing the Read-Onlyness, however systemd rules can be overwritten due to how systemd prioritieses directories, so by adding a rule with the same name in `/etc/udev/rules.d/` we can override the rule without making changes to SteamOS.
 
-Looking for the old code? see https://github.com/scawp/Steam-Deck.Mount-External-Drive/tree/pre-3.5
+Looking for the old code? see https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/tree/pre-3.5
 
-a `udev` rule is added to `/etc/udev/rules.d/99-steamos-automount.rules` which takes priority over `/usr/lib/udev/rules.d/99-steamos-automount.rules` 
+a `udev` rule is added to `/etc/udev/rules.d/99-steamos-automount.rules` which takes priority over `/usr/lib/udev/rules.d/99-steamos-automount.rules`
 this then calls systemd `/etc/systemd/system/external-drive-mount@[sda|sda1|sda2|sdd1|etc].service`
 that then runs `/home/deck/.local/share/scawp/SDMED/automount.sh` to Auto Mount any supported SD/External USB/Internal Partitions.
 
@@ -39,7 +39,7 @@ The Drive(s) will be Auto-Mounted to `/run/media/deck/[LABEL]` eg `/run/media/de
 
 ## Via Curl (One Line Install)
 
-In Konsole type `curl -sSL https://raw.githubusercontent.com/scawp/Steam-Deck.Mount-External-Drive/main/curl_install.sh | bash`
+In Konsole type `curl -sSL https://raw.githubusercontent.com/bcomnes/Steam-Deck.Mount-External-Drive/main/curl_install.sh | bash`
 
 a `sudo` password is required (run `passwd` if required first)
 
@@ -57,4 +57,4 @@ a `sudo` password is required (run `passwd` if required first)
 
 # WORK IN PROGRESS!
 
-This will probably have bugs, so beware! log bugs under [issues](https://github.com/scawp/Steam-Deck.Mount-External-Drive/issues)!
+This will probably have bugs, so beware! log bugs under [issues](https://github.com/bcomnes/Steam-Deck.Mount-External-Drive/issues)!
